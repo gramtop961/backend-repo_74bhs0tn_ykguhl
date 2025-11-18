@@ -12,37 +12,40 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
-
-# Example schemas (replace with your own):
+from typing import Optional, List
 
 class User(BaseModel):
     """
     Users collection schema
     Collection name: "user" (lowercase of class name)
     """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    username: str = Field(..., description="Unique handle")
+    display_name: Optional[str] = Field(None, description="Name shown publicly")
+    bio: Optional[str] = Field(None, description="Short bio")
+    avatar_url: Optional[str] = Field(None, description="Avatar image URL")
 
-class Product(BaseModel):
+class Post(BaseModel):
     """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
+    Posts collection schema
+    Collection name: "post"
     """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
+    username: str = Field(..., description="Owner username")
+    image_url: str = Field(..., description="Public URL of uploaded image")
+    caption: Optional[str] = Field(None, description="User-provided caption")
+    public: bool = Field(True, description="Whether visible in public feed")
 
-# Add your own schemas here:
-# --------------------------------------------------
+    # Non-judgmental visual analysis attributes
+    palette: List[str] = Field(default_factory=list, description="Top HEX colors in the image")
+    energy: float = Field(0.0, ge=0.0, le=1.0, description="Relative visual energy 0-1 based on saturation/contrast")
+    warmth: float = Field(0.0, ge=0.0, le=1.0, description="Relative color warmth 0-1 (cool→warm)")
+    contrast: float = Field(0.0, ge=0.0, le=1.0, description="Relative contrast 0-1")
+    tags: List[str] = Field(default_factory=list, description="Non-judgmental style descriptors")
+    vibe_index: float = Field(0.0, ge=0.0, le=10.0, description="Composite style index 0-10 derived from visual attributes")
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Like(BaseModel):
+    """
+    Likes collection schema
+    Collection name: "like"
+    """
+    post_id: str = Field(..., description="ID of the liked post")
+    username: str = Field(..., description="Username who liked the post")
